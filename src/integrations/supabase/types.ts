@@ -14,16 +14,245 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      consultations: {
+        Row: {
+          created_at: string
+          doctor_id: string
+          duration_seconds: number | null
+          id: string
+          patient_id: string
+          status: string
+          title: string | null
+          transcript: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          doctor_id: string
+          duration_seconds?: number | null
+          id?: string
+          patient_id: string
+          status?: string
+          title?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          doctor_id?: string
+          duration_seconds?: number | null
+          id?: string
+          patient_id?: string
+          status?: string
+          title?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultations_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          doctor_id: string
+          email: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_id: string
+          email?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          doctor_id?: string
+          email?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          hospital: string | null
+          id: string
+          specialty: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          hospital?: string | null
+          id?: string
+          specialty?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          hospital?: string | null
+          id?: string
+          specialty?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      soap_notes: {
+        Row: {
+          assessment: string | null
+          consultation_id: string
+          created_at: string
+          id: string
+          objective: string | null
+          plan: string | null
+          subjective: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessment?: string | null
+          consultation_id: string
+          created_at?: string
+          id?: string
+          objective?: string | null
+          plan?: string | null
+          subjective?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessment?: string | null
+          consultation_id?: string
+          created_at?: string
+          id?: string
+          objective?: string | null
+          plan?: string | null
+          subjective?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "soap_notes_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: true
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      structured_data: {
+        Row: {
+          consultation_id: string
+          created_at: string
+          diagnoses: Json | null
+          icd_codes: Json | null
+          id: string
+          medications: Json | null
+          symptoms: Json | null
+          updated_at: string
+          vitals: Json | null
+        }
+        Insert: {
+          consultation_id: string
+          created_at?: string
+          diagnoses?: Json | null
+          icd_codes?: Json | null
+          id?: string
+          medications?: Json | null
+          symptoms?: Json | null
+          updated_at?: string
+          vitals?: Json | null
+        }
+        Update: {
+          consultation_id?: string
+          created_at?: string
+          diagnoses?: Json | null
+          icd_codes?: Json | null
+          id?: string
+          medications?: Json | null
+          symptoms?: Json | null
+          updated_at?: string
+          vitals?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "structured_data_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: true
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_doctor: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "doctor" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +379,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["doctor", "admin"],
+    },
   },
 } as const
