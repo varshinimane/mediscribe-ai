@@ -5,17 +5,34 @@ import { Mail, Lock, User, Stethoscope, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"doctor" | "admin">("doctor");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+    if (password.length < 6) {
+      toast({ variant: "destructive", title: "Error", description: "Password must be at least 6 characters" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await signUp(email, password, name, role);
+    setLoading(false);
+    if (error) {
+      toast({ variant: "destructive", title: "Sign Up Failed", description: error.message });
+    } else {
+      toast({ title: "Account Created!", description: "Check your email to verify your account." });
+      navigate("/login");
+    }
   };
 
   return (
@@ -38,6 +55,7 @@ const SignUp = () => {
                 className="pl-10 h-12 rounded-xl bg-card border-border"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -52,6 +70,7 @@ const SignUp = () => {
                 className="pl-10 h-12 rounded-xl bg-card border-border"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -66,6 +85,8 @@ const SignUp = () => {
                 className="pl-10 h-12 rounded-xl bg-card border-border"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
               />
             </div>
           </div>
@@ -78,39 +99,32 @@ const SignUp = () => {
                 type="button"
                 onClick={() => setRole("doctor")}
                 className={`flex items-center gap-2 rounded-xl border-2 p-3 transition-all ${
-                  role === "doctor"
-                    ? "border-primary bg-accent"
-                    : "border-border bg-card"
+                  role === "doctor" ? "border-primary bg-accent" : "border-border bg-card"
                 }`}
               >
                 <Stethoscope className={`h-5 w-5 ${role === "doctor" ? "text-primary" : "text-muted-foreground"}`} />
-                <span className={`text-sm font-medium ${role === "doctor" ? "text-primary" : "text-muted-foreground"}`}>
-                  Doctor
-                </span>
+                <span className={`text-sm font-medium ${role === "doctor" ? "text-primary" : "text-muted-foreground"}`}>Doctor</span>
               </button>
               <button
                 type="button"
                 onClick={() => setRole("admin")}
                 className={`flex items-center gap-2 rounded-xl border-2 p-3 transition-all ${
-                  role === "admin"
-                    ? "border-primary bg-accent"
-                    : "border-border bg-card"
+                  role === "admin" ? "border-primary bg-accent" : "border-border bg-card"
                 }`}
               >
                 <ShieldCheck className={`h-5 w-5 ${role === "admin" ? "text-primary" : "text-muted-foreground"}`} />
-                <span className={`text-sm font-medium ${role === "admin" ? "text-primary" : "text-muted-foreground"}`}>
-                  Admin
-                </span>
+                <span className={`text-sm font-medium ${role === "admin" ? "text-primary" : "text-muted-foreground"}`}>Admin</span>
               </button>
             </div>
           </div>
 
           <Button
             type="submit"
+            disabled={loading}
             className="w-full h-13 rounded-xl text-base font-semibold medical-gradient border-0 text-primary-foreground shadow-float mt-2"
             size="lg"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
 
